@@ -25,29 +25,25 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
 
     @ExceptionHandler(AlreadyExistsEntityException.class)
     public final ResponseEntity<ErrorDetails> handleEntityAlreadyExists(AlreadyExistsEntityException ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), ex.getMessage(),
-                request.getDescription(false));
+        ErrorDetails errorDetails = new ErrorDetails();
         return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public final ResponseEntity<ErrorDetails> handleEntityNotFound(EntityNotFoundException ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), ex.getMessage(),
-                request.getDescription(false));
+        ErrorDetails errorDetails = new ErrorDetails();
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(BusinessException.class)
     public final ResponseEntity<ErrorDetails> handleBusinessException(EntityNotFoundException ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), ex.getMessage(),
-                request.getDescription(false));
+        ErrorDetails errorDetails = new ErrorDetails();
         return new ResponseEntity<>(errorDetails, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public final ResponseEntity<ErrorDetails> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), ex.getMessage(),
-                request.getDescription(false));
+        ErrorDetails errorDetails = new ErrorDetails();
         return new ResponseEntity<>(errorDetails, BAD_REQUEST);
     }
 
@@ -56,7 +52,7 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
             MissingServletRequestParameterException ex, HttpHeaders headers,
             HttpStatus status, WebRequest request) {
         String error = ex.getParameterName() + " parameter is missing";
-        return buildResponseEntity(new ErrorDetails(LocalDateTime.now(), error, ex.getLocalizedMessage()), BAD_REQUEST);
+        return buildResponseEntity(new ErrorDetails(), BAD_REQUEST);
     }
 
     @Override
@@ -69,20 +65,13 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
         builder.append(ex.getContentType());
         builder.append(" media type is not supported. Supported media types are ");
         ex.getSupportedMediaTypes().forEach(t -> builder.append(t).append(", "));
-        return buildResponseEntity(new ErrorDetails(LocalDateTime.now(), builder.substring(0, builder.length() - 2), ex.getLocalizedMessage()), UNSUPPORTED_MEDIA_TYPE);
+        return buildResponseEntity(new ErrorDetails(), UNSUPPORTED_MEDIA_TYPE);
     }
 
     @ExceptionHandler(javax.validation.ConstraintViolationException.class)
     public ResponseEntity<Object> handleConstraintViolation(
             javax.validation.ConstraintViolationException ex) {
-        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(),
-                "Constraint violation",
-                ex.getConstraintViolations()
-                        .stream()
-                        .map(constraintViolation ->
-                                constraintViolation.getPropertyPath() + " - " +
-                                        constraintViolation.getMessage())
-                        .collect(Collectors.joining()));
+        ErrorDetails errorDetails = new ErrorDetails();
         return buildResponseEntity(errorDetails, BAD_REQUEST);
     }
 
